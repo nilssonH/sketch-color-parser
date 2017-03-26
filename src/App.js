@@ -1,17 +1,53 @@
 import React, {Component} from 'react'
 import sketch2json from 'sketch2json'
 
-import convertToHex from './utils/convertToHex'
+import { rgbToHex } from './utils/convertToHex'
 
-var hexValue = []
-var colorsUsed = []
+const hexValue = []
+const colorsUsed = []
+
+const iterate = (obj, stack) => {
+    for (const property in obj) {
+        if (obj.hasOwnProperty(property)) {
+            if (typeof obj[property] === "object") {
+                iterate(obj[property], `${stack}.${property}`);
+            } else if (property === "_class" && obj[property] === "color") {
+                hexValue = [];
+                const red = obj.red;
+                const green = obj.green;
+                const blue = obj.blue;
+                const alpha = obj.alpha;
+
+                // Do the thing
+                const color = rgbToHex(hexValue, red, green, blue, alpha);
+
+                if (!colorsUsed.includes(color)) {
+                    colorsUsed.push(color)
+                    console.log(colorsUsed)
+                }
+            }
+        }
+    }
+}
+
+const translateFile = (component, reader, name) => () => {
+    sketch2json(reader.result).then(data => {
+        for(const page in data.pages) {
+            if(data.pages.hasOwnProperty(page)) {
+                const current = data.pages[page];
+                iterate(current, '')
+            }
+        }
+
+        component.setState({colors: colorsUsed})
+    })
+}
 
 class App extends Component {
     constructor() {
         super()
 
-        this.handleFileRead = this.handleFileRead.bind(this);
-        this.handleDrop = this.handleDrop.bind(this);
+        this.getFile = this.getFile.bind(this)
 
         this.state = {
             dragging: false,
@@ -21,23 +57,11 @@ class App extends Component {
         }
     }
 
-    handleFileRead = (component, reader, name) => () =>
-        sketch2json(reader.result).then(data => {
-            for(var page in data.pages) {
-                if(data.pages.hasOwnProperty(page)) {
-                    var current = data.pages[page];
-                    iterate(current, '')
-                }
-            }
-
-            component.setState({colors: colorsUsed})
-        })
-
-    handleDrop = (component) => (e) => {
+    getFile = (e) => {
         e.preventDefault()
         e.stopPropagation()
 
-        component.setState({
+        this.setState({
             dragging: false,
             fileDropped: true,
             colors: []
@@ -51,19 +75,17 @@ class App extends Component {
         for (let i = 0; i < files.length; i++) {
             const {name} = files[i]
             const reader = new window.FileReader()
-            reader.onload = this.handleFileRead(
-                component,
+            reader.onload = translateFile(
+                this,
                 reader,
                 name
             )
 
             reader.readAsArrayBuffer(files[i])
 
-            component.setState({
+            this.setState({
                 fileName: files[i].name
             })
-
-            console.log(files[i]);
         }
     }
 
@@ -87,7 +109,7 @@ class App extends Component {
                             return false
                         }}
 
-                        onDrop={this.handleDrop}
+                        onDrop={this.getFile}
 
                         style={{
                             backgroundColor: this.state.dragging ? 'rgba(0,0,0,.08)' : 'white',
@@ -142,30 +164,6 @@ class App extends Component {
                 </section>
             </main>
         )
-    }
-}
-
-function iterate(obj, stack) {
-    for (var property in obj) {
-        if (obj.hasOwnProperty(property)) {
-            if (typeof obj[property] === "object") {
-                iterate(obj[property], stack + '.' + property);
-            } else if (property === "_class" && obj[property] === "color") {
-                hexValue = [];
-                var red = obj.red;
-                var green = obj.green;
-                var blue = obj.blue;
-                var alpha = obj.alpha;
-
-                // Do the thing
-                var color = convertToHex.rgbToHex(hexValue, red, green, blue, alpha)
-
-                if (colorsUsed.indexOf(color) < 0) {
-                    colorsUsed.push(color)
-                    console.log(colorsUsed)
-                }
-            }
-        }
     }
 }
 
