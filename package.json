@@ -13,7 +13,7 @@
     "react-json-tree": "^0.10.7",
     "sketch2json": "^0.1.0"
   },
-  "main": "src/App.js",
+  "main": "src/index.js",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
