@@ -1,6 +1,6 @@
 // Converting NSColor to Hex
 const msToRGB = (v) => {
-	return (Math.round(v * 255))
+	return (Math.round(v * 255));
 }
 
 const componentArray = (hexValue, r, g, b) => {
