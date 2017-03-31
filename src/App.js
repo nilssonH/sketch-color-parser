@@ -18,7 +18,7 @@ const iterate = (obj, stack) => {
                 const blue = obj.blue;
                 const alpha = obj.alpha;
 
-                // Do the thing
+                // Convert color to Hex
                 const color = rgbToHex(hexValue, red, green, blue, alpha);
 
                 if (!colorsUsed.includes(color)) {
@@ -114,8 +114,7 @@ class App extends Component {
                         style={{
                             backgroundColor: this.state.dragging ? 'rgba(0,0,0,.08)' : 'white',
                             transition: 'all 0.25s ease-in-out',
-                            color: '#999',
-                            display: 'block'
+                            color: '#999'
                         }}>
 
                         Drag a Sketch v43 file to extract.
@@ -130,14 +129,7 @@ class App extends Component {
 
                 </section>
 
-                <section
-                    style={{
-                        backgroundColor: 'white',
-                        color: 'black',
-                        display: 'block',
-                        width: '100%'
-                    }}>
-
+                <section>
                     <div className="pa5 pt0 pb6 flex flex-column mw8 center">
                         <h3 className="f6 ttu fw6 mt0 mb3 bb pb2">Colors</h3>
                         <div className="col">
